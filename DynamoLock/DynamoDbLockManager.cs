@@ -22,6 +22,7 @@ namespace DynamoLock
         private readonly List<string> _localLocks;
         private Task _heartbeatTask;
         private CancellationTokenSource _cancellationTokenSource;
+        private readonly AutoResetEvent _mutex = new AutoResetEvent(true);
 
         public DynamoDbLockManager(AWSCredentials credentials, AmazonDynamoDBConfig config, string tableName, ILockTableProvisioner provisioner, ILoggerFactory logFactory)
         {
@@ -91,7 +92,18 @@ namespace DynamoLock
 
         public async Task ReleaseLock(string Id)
         {
-            _localLocks.Remove(Id);
+            if (_mutex.WaitOne())
+            {
+                try
+                {
+                    _localLocks.Remove(Id);
+                }
+                finally
+                {
+                    _mutex.Set();
+                }
+            }
+
             try
             {
                 var req = new DeleteItemRequest()
@@ -144,36 +156,54 @@ namespace DynamoLock
                 try
                 {
                     await Task.Delay(_heartbeat, _cancellationTokenSource.Token);
-                    foreach (var item in _localLocks)
+                    if (_mutex.WaitOne())
                     {
-                        var req = new PutItemRequest
+                        try
                         {
-                            TableName = _tableName,
-                            Item = new Dictionary<string, AttributeValue>
-                        {
-                            { "id", new AttributeValue(item) },
-                            { "lock_owner", new AttributeValue(_nodeId) },
+                            foreach (var item in _localLocks)
                             {
-                                "expires", new AttributeValue()
+                                var req = new PutItemRequest
                                 {
-                                    N = Convert.ToString(new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds() + _defaultLeaseTime)
-                                }
-                            },
-                            {
-                                "purge_time", new AttributeValue()
-                                {
-                                    N = Convert.ToString(new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds() + (_defaultLeaseTime * 10))
-                                }
-                            }
-                        },
-                            ConditionExpression = "lock_owner = :node_id",
-                            ExpressionAttributeValues = new Dictionary<string, AttributeValue>
-                        {
-                            { ":node_id", new AttributeValue(_nodeId) }
-                        }
-                        };
+                                    TableName = _tableName,
+                                    Item = new Dictionary<string, AttributeValue>
+                                    {
+                                        { "id", new AttributeValue(item) },
+                                        { "lock_owner", new AttributeValue(_nodeId) },
+                                        {
+                                            "expires", new AttributeValue()
+                                            {
+                                                N = Convert.ToString(new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds() + _defaultLeaseTime)
+                                            }
+                                        },
+                                        {
+                                            "purge_time", new AttributeValue()
+                                            {
+                                                N = Convert.ToString(new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds() + (_defaultLeaseTime * 10))
+                                            }
+                                        }
+                                    },
+                                    ConditionExpression = "lock_owner = :node_id",
+                                    ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+                                    {
+                                        { ":node_id", new AttributeValue(_nodeId) }
+                                    }
+                                };
 
-                        await _client.PutItemAsync(req, _cancellationTokenSource.Token);
+                                try
+                                {
+                                    await _client.PutItemAsync(req, _cancellationTokenSource.Token);
+                                }
+                                catch (ConditionalCheckFailedException)
+                                {
+                                    _logger.LogWarning($"Lock not owned anymore when sending heartbeat for {item}");
+                                }
+                                
+                            }
+                        }
+                        finally
+                        {
+                            _mutex.Set();
+                        }
                     }
                 }
                 catch (Exception ex)

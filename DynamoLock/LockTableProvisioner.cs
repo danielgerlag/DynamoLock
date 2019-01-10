@@ -47,7 +47,12 @@ namespace DynamoLock
                 {
                     new AttributeDefinition("id", ScalarAttributeType.S)
                 },
-                BillingMode = BillingMode.PAY_PER_REQUEST
+                ProvisionedThroughput = new ProvisionedThroughput()
+                {
+                    ReadCapacityUnits = 1,
+                    WriteCapacityUnits = 1
+                }
+                //BillingMode = BillingMode.PAY_PER_REQUEST
             };
 
             var createResponse = await _client.CreateTableAsync(createRequest);

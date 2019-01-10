@@ -3,11 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamoLock", "DynamoLock\DynamoLock.csproj", "{C20C6C20-35A2-45A8-9FD7-64A409ED87EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DynamoLock", "DynamoLock\DynamoLock.csproj", "{C20C6C20-35A2-45A8-9FD7-64A409ED87EC}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Docker.Testify", "Docker.Testify\Docker.Testify.csproj", "{BE66FA2C-8624-415F-88DC-DC05ADF081B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamoLock.Tests", "DynamoLock.Tests\DynamoLock.Tests.csproj", "{84FA283C-0139-4475-914B-BEF52E5047E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DynamoLock.Tests", "DynamoLock.Tests\DynamoLock.Tests.csproj", "{84FA283C-0139-4475-914B-BEF52E5047E1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5B57EFAA-0344-4DFC-91F7-6ACC38154C27}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
