@@ -6,7 +6,15 @@ DynamoLock is a client library for .Net Standard that implements a distributed l
 
 ## Installing
 
-todo
+Using Nuget package console
+```
+PM> Install-Package DynamoLock
+```
+Using .NET CLI
+```
+dotnet add package DynamoLock
+```
+
 
 ## How it works
 
@@ -16,43 +24,50 @@ Once the expiry time has elapsed or the owning node releases the lock, it become
 
 ## Usage
 
-An extension method to the IoC abstraction of `IServiceCollection` is provided that will add an implementation of `IDistributedLockManager` to your IoC container.
+1. An extension method to the IoC abstraction of `IServiceCollection` is provided that will add an implementation of `IDistributedLockManager` to your IoC container.
 
-```c#
-using DynamoLock;
-...
+    ```c#
+    using DynamoLock;
+    ...
 
-services.AddDynamoLockManager(new EnvironmentVariablesAWSCredentials(), new AmazonDynamoDBConfig() { RegionEndpoint = RegionEndpoint.USWest2 }, "lock_table");
+    services.AddDynamoLockManager(new EnvironmentVariablesAWSCredentials(), new AmazonDynamoDBConfig() { RegionEndpoint = RegionEndpoint.USWest2 }, "lock_table");
 
-```
-Then inject `IDistributedLockManager` into your classes via your IoC container of choice.
+    ```
 
-When your application starts up, you will also need to call the `.Start` method in order to provision the table and start the background heartbeat service.
-```c#
-IDistributedLockManager lockerManager;
-...
-lockManager.Start();
-```
-This will automatically provision the table in DynamoDB if it does not exist and will enable sending a heartbeat every 10 seconds for any locks that have been acquired with the local manager, and renew their leases for a further 30 seconds, until `ReleaseLock` is called for a given resource.
-The table will be created with through put units of 1 by default, you can change these values on the AWS console after the fact.
+2. Then inject `IDistributedLockManager` into your classes via your IoC container of choice.
+3. When your application starts up, you will also need to call the `.Start` method in order to provision the table and start the background heartbeat service.
+    ```c#
+    IDistributedLockManager lockerManager;
+    ...
+    lockManager.Start();
+    ```
+    This will automatically provision the table in DynamoDB if it does not exist and will enable sending a heartbeat every 10 seconds for any locks that have been acquired with the local manager, and renew their leases for a further 30 seconds, until `ReleaseLock` is called for a given resource.
+    The table will be created with through put units of 1 by default, you can change these values on the AWS console after the fact.
 
-Use the `AcquireLock` and `ReleaseLock` methods to manage your distributed locks.
+4. Use the `AcquireLock` and `ReleaseLock` methods to manage your distributed locks.
 
-```c#
-IDistributedLockManager lockerManager;
-...
-var success = await lockManager.AcquireLock("my-lock-id");
-...
-await lockManager.ReleaseLock("my-lock-id");
-```
+    ```c#
+    IDistributedLockManager lockerManager;
+    ...
+    var success = await lockManager.AcquireLock("my-lock-id");
+    ...
+    await lockManager.ReleaseLock("my-lock-id");
+    ```
 
-`AcquireLock` will return `false` if the lock is already in use and `true` if it successfully acquired the lock.
-It will start with an initial lease of 30 seconds, and a background thread will renew all locally controlled leases every 10 seconds, until `ReleaseLock` is called or the application ends and the leases expire naturally.
+    `AcquireLock` will return `false` if the lock is already in use and `true` if it successfully acquired the lock.
+    It will start with an initial lease of 30 seconds, and a background thread will renew all locally controlled leases every 10 seconds, until `ReleaseLock` is called or the application ends and the leases expire naturally.
 
 ### Notes
 
 It is recomended that you keep the clocks of all particapting nodes in sync using an NTP implementation
 
-https://en.wikipedia.org/wiki/Network_Time_Protocol
+    https://en.wikipedia.org/wiki/Network_Time_Protocol
 
-https://aws.amazon.com/blogs/aws/keeping-time-with-amazon-time-sync-service/
+    https://aws.amazon.com/blogs/aws/keeping-time-with-amazon-time-sync-service/
+
+## Authors
+ * **Daniel Gerlag** - daniel@gerlag.ca
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details

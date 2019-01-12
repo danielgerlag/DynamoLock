@@ -146,6 +146,7 @@ namespace DynamoLock
             _cancellationTokenSource.Cancel();
             _heartbeatTask.Wait();
             _heartbeatTask = null;
+            _localLocks.Clear();
             return Task.CompletedTask;
         }
 

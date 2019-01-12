@@ -72,9 +72,13 @@ namespace DynamoLock.Tests
         {
             var lockId = Guid.NewGuid().ToString();
 
+            await _subject.Start();
             var first = await _subject.AcquireLock(lockId);
+            await _subject.Stop();
             await Task.Delay(TimeSpan.FromSeconds(_leaseTime + 2));
+            await _subject.Start();
             var second = await _subject.AcquireLock(lockId);
+            await _subject.Stop();
 
             Assert.True(first);
             Assert.True(second);
