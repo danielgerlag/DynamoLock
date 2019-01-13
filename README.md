@@ -61,9 +61,8 @@ Once the expiry time has elapsed or the owning node releases the lock, it become
 
 It is recomended that you keep the clocks of all particapting nodes in sync using an NTP implementation
 
-    https://en.wikipedia.org/wiki/Network_Time_Protocol
-
-    https://aws.amazon.com/blogs/aws/keeping-time-with-amazon-time-sync-service/
+* https://en.wikipedia.org/wiki/Network_Time_Protocol
+* https://aws.amazon.com/blogs/aws/keeping-time-with-amazon-time-sync-service/
 
 ## Authors
  * **Daniel Gerlag** - daniel@gerlag.ca
