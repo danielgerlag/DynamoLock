@@ -69,4 +69,4 @@ It is recomended that you keep the clocks of all particapting nodes in sync usin
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details

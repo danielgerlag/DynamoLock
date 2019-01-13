@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/danielgerlag/DynamoLock</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/danielgerlag/DynamoLock/blob/master/LICENSE.md</PackageLicenseUrl>
+    <Authors>Daniel Gerlag</Authors>
+    <Company />
+    <RepositoryUrl>https://github.com/danielgerlag/DynamoLock.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Distributed lock manager</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
