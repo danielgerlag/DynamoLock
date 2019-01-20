@@ -161,7 +161,7 @@ namespace DynamoLock
                     {
                         try
                         {
-                            foreach (var item in _localLocks)
+                            foreach (var item in _localLocks.ToArray())
                             {
                                 var req = new PutItemRequest
                                 {

@@ -11,6 +11,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Distributed lock manager</PackageTags>
     <Description>DynamoLock is a client library for .Net Standard that implements a distributed lock manager on top of Amazon DynamoDB.</Description>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
