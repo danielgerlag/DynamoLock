@@ -12,13 +12,20 @@ namespace DynamoLock
     public class LockTableProvisioner : ILockTableProvisioner
     {
         private readonly ILogger _logger;
-        private readonly AmazonDynamoDBClient _client;
+        private readonly IAmazonDynamoDB _client;
         private readonly string _tableName;
 
         public LockTableProvisioner(AWSCredentials credentials, AmazonDynamoDBConfig config, string tableName, ILoggerFactory logFactory)
         {
             _logger = logFactory.CreateLogger<LockTableProvisioner>();
             _client = new AmazonDynamoDBClient(credentials, config);
+            _tableName = tableName;
+        }
+
+        public LockTableProvisioner(IAmazonDynamoDB dynamoClient, string tableName, ILoggerFactory logFactory)
+        {
+            _logger = logFactory.CreateLogger<LockTableProvisioner>();
+            _client = dynamoClient;
             _tableName = tableName;
         }
 

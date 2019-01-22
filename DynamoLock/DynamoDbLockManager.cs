@@ -2,24 +2,26 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace DynamoLock
 {
     public class DynamoDbLockManager : IDistributedLockManager
     {
         private readonly ILogger _logger;
-        private readonly AmazonDynamoDBClient _client;
+        private readonly IAmazonDynamoDB _client;
         private readonly ILockTableProvisioner _provisioner;
         private readonly string _tableName;
-        private readonly string _nodeId;
+        private readonly string _nodeId = Guid.NewGuid().ToString();
         private readonly long _defaultLeaseTime = 30;
         private readonly TimeSpan _heartbeat = TimeSpan.FromSeconds(10);
         private readonly long _jitterTolerance = 1;
-        private readonly List<string> _localLocks;
+        private readonly List<string> _localLocks = new List<string>();
         private Task _heartbeatTask;
         private CancellationTokenSource _cancellationTokenSource;
         private readonly AutoResetEvent _mutex = new AutoResetEvent(true);
@@ -28,10 +30,24 @@ namespace DynamoLock
         {
             _logger = logFactory.CreateLogger<DynamoDbLockManager>();
             _client = new AmazonDynamoDBClient(credentials, config);
-            _localLocks = new List<string>();
             _tableName = tableName;
             _provisioner = provisioner;
-            _nodeId = Guid.NewGuid().ToString();
+        }
+
+        public DynamoDbLockManager(AWSCredentials credentials, RegionEndpoint region, string tableName, ILoggerFactory logFactory)
+        {
+            _logger = logFactory.CreateLogger<DynamoDbLockManager>();
+            _client = new AmazonDynamoDBClient(credentials, region);
+            _tableName = tableName;
+            _provisioner = new LockTableProvisioner(credentials, new AmazonDynamoDBConfig() { RegionEndpoint = region }, tableName, logFactory);
+        }
+
+        public DynamoDbLockManager(IAmazonDynamoDB dynamoClient, string tableName, ILoggerFactory logFactory)
+        {
+            _logger = logFactory.CreateLogger<DynamoDbLockManager>();
+            _client = dynamoClient;
+            _tableName = tableName;
+            _provisioner = new LockTableProvisioner(dynamoClient, tableName, logFactory);
         }
 
         public DynamoDbLockManager(AWSCredentials credentials, AmazonDynamoDBConfig config, string tableName, ILockTableProvisioner provisioner, ILoggerFactory logFactory, long defaultLeaseTime, TimeSpan hearbeat)
