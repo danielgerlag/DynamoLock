@@ -24,8 +24,21 @@ Once the expiry time has elapsed or the owning node releases the lock, it become
 
 ## Usage
 
-1. An extension method to the IoC abstraction of `IServiceCollection` is provided that will add an implementation of `IDistributedLockManager` to your IoC container.
+1. Construct a singleton of DynamoDbLockManager, using one of the overloaded constructors
 
+	```c#
+	using DynamoLock;
+    ...
+	var lockManager = DynamoDbLockManager(new EnvironmentVariablesAWSCredentials(), RegionEndpoint.USWest2, NullLoggerFactory.Instance);
+	```
+
+	```c#
+	using DynamoLock;
+    ...
+	var lockManager = DynamoDbLockManager(dynamoClient, NullLoggerFactory.Instance);
+	```
+	
+	Alternatively, an extension method to the IoC abstraction of `IServiceCollection` is provided that will add an implementation of `IDistributedLockManager` to your IoC container.
     ```c#
     using DynamoLock;
     ...
