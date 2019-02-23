@@ -72,7 +72,7 @@ Once the expiry time has elapsed or the owning node releases the lock, it become
 
 ### Notes
 
-It is recomended that you keep the clocks of all particapting nodes in sync using an NTP implementation
+It is recommended that you keep the clocks of all participating nodes in sync using an NTP implementation
 
 * https://en.wikipedia.org/wiki/Network_Time_Protocol
 * https://aws.amazon.com/blogs/aws/keeping-time-with-amazon-time-sync-service/
