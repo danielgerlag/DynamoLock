@@ -13,8 +13,10 @@ namespace DynamoLock
     {
         public static void AddDynamoLockManager(this IServiceCollection serviceCollection, AWSCredentials credentials, AmazonDynamoDBConfig config, string tableName)
         {
+            serviceCollection.AddSingleton<ILocalLockTracker, LocalLockTracker>();
+            serviceCollection.AddSingleton<IHeartbeatDispatcher>(sp => new HeartbeatDispatcher(credentials, config, sp.GetService<ILocalLockTracker>(), tableName, sp.GetService<ILoggerFactory>() ?? new NullLoggerFactory()));
             serviceCollection.AddSingleton<ILockTableProvisioner>(sp => new LockTableProvisioner(credentials, config, tableName, sp.GetService<ILoggerFactory>() ?? new NullLoggerFactory()));
-            serviceCollection.AddSingleton<IDistributedLockManager>(sp => new DynamoDbLockManager(credentials, config, tableName, sp.GetService<ILockTableProvisioner>(), sp.GetService<ILoggerFactory>() ?? new NullLoggerFactory()));
+            serviceCollection.AddSingleton<IDistributedLockManager>(sp => new DynamoDbLockManager(credentials, config, tableName, sp.GetService<ILockTableProvisioner>(), sp.GetService<IHeartbeatDispatcher>(), sp.GetService<ILocalLockTracker>(), sp.GetService<ILoggerFactory>() ?? new NullLoggerFactory()));
         }
     }
 }

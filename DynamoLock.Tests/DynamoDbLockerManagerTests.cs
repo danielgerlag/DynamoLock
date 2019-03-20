@@ -20,7 +20,9 @@ namespace DynamoLock.Tests
             _dockerSetup = dockerSetup;
             var cfg = new AmazonDynamoDBConfig { ServiceURL = DynamoDbDockerSetup.ConnectionString };
             var provisioner = new LockTableProvisioner(DynamoDbDockerSetup.Credentials, cfg, "lock-tests", new NullLoggerFactory());
-            _subject = new DynamoDbLockManager(DynamoDbDockerSetup.Credentials, cfg, "lock-tests", provisioner, new NullLoggerFactory(), _leaseTime, _heartbeat);
+            var tracker = new LocalLockTracker();
+            var heartbeatDispatcher = new HeartbeatDispatcher(DynamoDbDockerSetup.Credentials, cfg, tracker, "lock-tests", new NullLoggerFactory());
+            _subject = new DynamoDbLockManager(DynamoDbDockerSetup.Credentials, cfg, "lock-tests", provisioner, heartbeatDispatcher, tracker, new NullLoggerFactory(), _leaseTime, _heartbeat);
         }
         
         [Fact]
